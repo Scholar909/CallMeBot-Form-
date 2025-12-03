@@ -321,8 +321,8 @@ if (location.pathname.endsWith('form.html')) {
 
       await addDoc(collection(db, "responses_" + form.id), { id: uid(), timestamp: new Date().toISOString(), answers });
 
-      const lines = [`New response for: ${form.title}`, ''];
-      answers.forEach(a=>lines.push(`${a.question}: ${a.answer}`, ''));
+      const lines = [`New response for: ${form.title}`];
+      answers.forEach(a=>lines.push(`${a.question}: ${a.answer}`));
       const message = lines.join('\n');
 
       if (form.callmebot?.phone && form.callmebot?.apikey) {
