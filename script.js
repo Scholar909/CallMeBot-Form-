@@ -13,7 +13,7 @@ function loadForms(){
 function saveForms(forms){ localStorage.setItem('forms', JSON.stringify(forms)) }
 
 // --- Builder logic (index.html) ---
-if (location.pathname.endsWith('index.html') || location.pathname === '/' ){
+document.addEventListener('DOMContentLoaded', () => {
   const formsList = $('#formsList');
   const createFormBtn = $('#createFormBtn');
   const builder = $('#builder');
@@ -196,7 +196,7 @@ if (location.pathname.endsWith('index.html') || location.pathname === '/' ){
 
   // initialise
   renderFormsList();
-}
+});
 
 // --- Public form logic (form.html) ---
 if (location.pathname.endsWith('form.html')){
