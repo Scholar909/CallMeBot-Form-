@@ -321,17 +321,9 @@ if (location.pathname.endsWith('form.html')) {
 
       await addDoc(collection(db, "responses_" + form.id), { id: uid(), timestamp: new Date().toISOString(), answers });
 
-const lines = [`New response for: ${form.title}`, '']; // blank line after title
-
-answers.forEach((a, idx) => {
-  lines.push(
-    `${idx + 1}. ${a.question}:`,       // Question on its own line
-    `${a.answer}`,                      // Answer on its own line
-    ''                                  // Blank line for spacing
-  );
-});
-
-const message = lines.join('\n');
+      const lines = [`New response for: ${form.title}`, ''];
+      answers.forEach(a=>lines.push(`${a.question}: ${a.answer}`, ''));
+      const message = lines.join('\n');
 
       if (form.callmebot?.phone && form.callmebot?.apikey) {
         statusEl.textContent = 'Sending WhatsApp notification...';
@@ -355,4 +347,4 @@ const message = lines.join('\n');
       return resp;
     }
   });
-  }
+}
