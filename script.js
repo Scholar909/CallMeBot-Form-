@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <label class="small"><input type="checkbox" class="q-required" ${q.required?'checked':''}/> Required</label>
           <button class="btn small edit-options">Options</button>
         </div>
-        <div class="q-options small muted">${(q.options||[]).join(', ')}</div>
+        <div class="q-options small muted">${escapeHtml((q.options||[]).join(', '))}</div>
       </div>
       <div class="q-controls">
         <button class="btn up">↑</button>
@@ -226,40 +226,47 @@ if (location.pathname.endsWith('form.html')){
       let input;
       if (q.type === 'paragraph'){
         input = document.createElement('textarea');
+        input.dataset.qid = q.id;
       } else if (q.type === 'short'){
-        input = document.createElement('input'); input.type = 'text';
+        input = document.createElement('input'); input.type = 'text'; input.dataset.qid = q.id;
       } else if (q.type === 'date'){
-        input = document.createElement('input'); input.type = 'date';
+        input = document.createElement('input'); input.type = 'date'; input.dataset.qid = q.id;
       } else if (q.type === 'file'){
-        input = document.createElement('input'); input.type = 'file';
-      } else if (q.type === 'mc' || q.type === 'checkbox' || q.type === 'dropdown'){
-        if (q.type === 'dropdown'){
-          input = document.createElement('select');
-          const empty = document.createElement('option'); empty.value=''; empty.textContent='Choose...'; input.appendChild(empty);
-          (q.options||[]).forEach(opt=>{
-            const o = document.createElement('option'); o.value = opt; o.textContent = opt; input.appendChild(o);
-          });
-        } else {
-          input = document.createElement('div');
-          (q.options||[]).forEach((opt, idx)=>{
-            const id = 'opt-' + q.id + '-' + idx;
-            const el = document.createElement('label');
-            el.style.display='block';
-            const inp = document.createElement('input');
-            inp.type = (q.type==='checkbox') ? 'checkbox' : 'radio';
-            inp.name = q.id;
-            inp.value = opt;
-            inp.id = id;
-            el.appendChild(inp);
-            const txt = document.createTextNode(' ' + opt);
-            el.appendChild(txt);
-            input.appendChild(el);
-          });
-        }
+        input = document.createElement('input'); input.type = 'file'; input.dataset.qid = q.id;
+      } else if (q.type === 'dropdown'){
+        input = document.createElement('select'); input.dataset.qid = q.id;
+        const empty = document.createElement('option'); empty.value=''; empty.textContent='Choose...'; input.appendChild(empty);
+        (q.options||[]).forEach(opt=>{
+          const o = document.createElement('option'); o.value = opt; o.textContent = opt; input.appendChild(o);
+        });
+      } else if (q.type === 'mc' || q.type === 'checkbox'){
+        input = document.createElement('div');
+        input.className = 'options';
+        input.dataset.qid = q.id;
+        (q.options||[]).forEach((opt, idx)=>{
+          const id = 'opt-' + q.id + '-' + idx;
+          const el = document.createElement('label');
+          el.style.display = 'flex';
+          el.style.alignItems = 'center';
+          el.style.gap = '8px';
+          el.style.marginBottom = '4px';
+
+          const inp = document.createElement('input');
+          inp.type = (q.type==='checkbox') ? 'checkbox' : 'radio';
+          inp.name = q.id;
+          inp.value = opt;
+          inp.id = id;
+          inp.style.width = '18px';
+          inp.style.height = '18px';
+          inp.style.flexShrink = '0';
+
+          el.appendChild(inp);
+          el.appendChild(document.createTextNode(opt));
+          input.appendChild(el);
+        });
       } else {
-        input = document.createElement('input'); input.type='text';
+        input = document.createElement('input'); input.type='text'; input.dataset.qid = q.id;
       }
-      input.dataset.qid = q.id;
       wrapper.appendChild(input);
       publicForm.appendChild(wrapper);
     });
@@ -283,10 +290,10 @@ if (location.pathname.endsWith('form.html')){
       } else if (q.type === 'dropdown'){
         value = node.value || '';
       } else if (q.type === 'mc'){
-        const sel = publicForm.querySelector(`input[name="${q.id}"]:checked`);
+        const sel = node.querySelector(`input[name="${q.id}"]:checked`);
         value = sel ? sel.value : '';
       } else if (q.type === 'checkbox'){
-        const sels = Array.from(publicForm.querySelectorAll(`input[name="${q.id}"]:checked`)).map(i=>i.value);
+        const sels = Array.from(node.querySelectorAll(`input[name="${q.id}"]:checked`)).map(i=>i.value);
         value = sels.join(', ');
       } else {
         value = node.value || '';
@@ -330,7 +337,6 @@ if (location.pathname.endsWith('form.html')){
   async function sendCallMeBot(phone, apikey, message){
     // NOTE: In production, don't call this from the browser. Use a server to keep the API key secret.
     const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(message)}`;
-    // Try GET fetch (may be blocked by CORS)
     const resp = await fetch(url, { method: 'GET', mode: 'cors' });
     if (!resp.ok) throw new Error('CallMeBot request failed: ' + resp.status);
     return resp;

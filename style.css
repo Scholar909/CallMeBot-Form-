@@ -197,3 +197,19 @@ input:focus, textarea:focus {
   font-size: 13px;
   color: var(--muted);
 }
+
+.field label {
+  display: flex;
+  align-items: center; /* centers input with text */
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.field label input[type="checkbox"],
+.field label input[type="radio"] {
+  vertical-align: middle;  /* aligns the dot/box with text */
+  margin: 0;               /* remove default spacing */
+  flex-shrink: 0;          /* prevents shrinking inside flex */
+  width: 18px;             /* optional: make size uniform */
+  height: 18px;            /* optional: make size uniform */
+}
