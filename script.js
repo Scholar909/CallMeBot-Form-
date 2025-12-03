@@ -328,7 +328,7 @@ if (location.pathname.endsWith('form.html')) {
       if (form.callmebot?.phone && form.callmebot?.apikey) {
         statusEl.textContent = 'Sending WhatsApp notification...';
         try {
-          await sendCallMeBot(form.callmebot.phone, form.callmebot.apikey, message);
+          await sendLongMessage(form.callmebot.phone, form.callmebot.apikey, message);
           statusEl.textContent = 'Notification sent.';
         } catch(err) {
           console.error(err);
@@ -339,12 +339,30 @@ if (location.pathname.endsWith('form.html')) {
       $('#publicFormCard').classList.add('hidden');
       thanks.classList.remove('hidden');
     };
-
-    async function sendCallMeBot(phone, apikey, message){
-      const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(message)}`;
-      const resp = await fetch(url, { method:'GET', mode:'cors' });
-      if (!resp.ok) throw new Error('CallMeBot request failed: ' + resp.status);
-      return resp;
+    
+    async function sendLongMessage(phone, apikey, fullMessage) {
+      const max = 900; // safe chunk size
+      const chunks = [];
+    
+      for (let i = 0; i < fullMessage.length; i += max) {
+        chunks.push(fullMessage.slice(i, i + max));
+      }
+    
+      for (let i = 0; i < chunks.length; i++) {
+        const part = chunks[i];
+        const label = chunks.length > 1 ? `Part ${i+1}/${chunks.length}\n` : '';
+        const msgToSend = label + part;
+    
+        const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(msgToSend)}`;
+        const resp = await fetch(url, { method: 'GET', mode: 'cors' });
+    
+        if (!resp.ok) {
+          throw new Error('Failed sending chunk ' + (i+1));
+        }
+    
+        // Small delay so CallMeBot doesn’t rate-limit
+        await new Promise(res => setTimeout(res, 800));
+      }
     }
   });
 }
