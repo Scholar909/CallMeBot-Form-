@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Form Builder — Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Form Builder</h1>
+    <div class="meta">Simple • Modern • Smart</div>
+  </header>
+
+  <main class="container">
+    <section id="dashboard" class="card">
+      <div class="row space">
+        <h2>Your Forms</h2>
+        <div>
+          <button id="createFormBtn" class="btn primary">Create New Form</button>
+        </div>
+      </div>
+
+      <div id="formsList" class="list"></div>
+    </section>
+
+    <section id="builder" class="card hidden">
+      <div class="row space">
+        <h2>Form Builder</h2>
+        <div>
+          <button id="saveFormBtn" class="btn primary">Save Form</button>
+          <button id="cancelEditBtn" class="btn">Cancel</button>
+        </div>
+      </div>
+
+      <label class="field">
+        <div class="label">Form Title</div>
+        <input id="formTitle" placeholder="Enter form title (used in CallMeBot messages)" />
+      </label>
+
+      <div class="section">
+        <div class="sectionHeader">
+          <h3>Questions</h3>
+          <button id="addQuestionBtn" class="btn">+ Add Question</button>
+        </div>
+        <ul id="questionsArea" class="questions"></ul>
+      </div>
+
+      <div class="section">
+        <h3>CallMeBot Authorization</h3>
+        <p class="muted">I allow CallMeBot to send me messages.</p>
+        <label class="field inline">
+          <div class="label">WhatsApp Phone (international, no plus)</div>
+          <input id="cm_phone" placeholder="e.g. 15551234567" />
+        </label>
+
+        <label class="field inline">
+          <div class="label">CallMeBot API Key</div>
+          <input id="cm_apikey" placeholder="API key from CallMeBot" />
+        </label>
+      </div>
+
+      <div class="row right">
+        <button id="publishBtn" class="btn success">Publish</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>Built for testing/demo. For production, use a server to forward CallMeBot requests securely.</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
