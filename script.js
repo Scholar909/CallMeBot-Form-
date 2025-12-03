@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     qs('.publish', formsList).forEach(b=>b.onclick = (e)=>{
       const id = e.target.dataset.id;
-      const url = location.origin + '/form.html?form=' + id;
+      const url = location.origin + '/CallMeBot-Form-/form.html?form=' + id;
       prompt('Shareable public link (copy):', url);
     });
     qs('.delete', formsList).forEach(b=>b.onclick = (e)=>{
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
   publishBtn.onclick = ()=>{
     if (!editingId) return alert('Save the form first.');
     saveFormBtn.onclick(); // quick save
-    const url = location.origin + '/form.html?form=' + editingId;
+    const url = location.origin + '/CallMeBot-Form-/form.html?form=' + editingId;
     prompt('Publish — share this URL:', url);
   };
 
