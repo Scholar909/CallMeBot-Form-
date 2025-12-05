@@ -342,24 +342,30 @@ if (location.pathname.endsWith('form.html')) {
     
     async function sendLongMessage(phone, apikey, fullMessage) {
     
-      const MAX = 350;       // Ultra-safe size
-      const delay = 12000;  // 12 seconds delay
+      const MAX = 400;       // Safe chunk size
+      const delay = 10000;  // 10 seconds delay
+    
+      // ✅ Unique group ID per submission
+      const msgGroupId = Math.random().toString(36).substring(2, 8).toUpperCase();
     
       function sendViaImage(url) {
         return new Promise((resolve) => {
           const img = new Image();
           img.onload = () => resolve();
-          img.onerror = () => resolve(); // even on error, continue
-          img.src = url + "&_=" + Date.now(); // prevent caching
+          img.onerror = () => resolve();
+          img.src = url + "&_=" + Date.now();
         });
       }
     
+      // ✅ If message is short
       if (fullMessage.length <= MAX) {
-        const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(fullMessage)}`;
+        const tagged = `[ID:${msgGroupId}] Part 1/1\n${fullMessage}`;
+        const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(tagged)}`;
         await sendViaImage(url);
         return;
       }
     
+      // ✅ Split long message
       const chunks = [];
       for (let i = 0; i < fullMessage.length; i += MAX) {
         chunks.push(fullMessage.slice(i, i + MAX));
@@ -368,7 +374,9 @@ if (location.pathname.endsWith('form.html')) {
       const total = chunks.length;
     
       for (let i = 0; i < total; i++) {
-        const msg = `Part ${i + 1}/${total}\n${chunks[i]}`;
+        const msg =
+    `[ID:${msgGroupId}] Part ${i + 1}/${total}
+    ${chunks[i]}`;
     
         const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(msg)}`;
     
