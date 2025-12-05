@@ -342,12 +342,21 @@ if (location.pathname.endsWith('form.html')) {
     
     async function sendLongMessage(phone, apikey, fullMessage) {
     
-      const MAX = 400;      // ✅ SAFE size
-      const delay = 10000; // ✅ 10 seconds delay (VERY IMPORTANT)
+      const MAX = 350;       // Ultra-safe size
+      const delay = 12000;  // 12 seconds delay
+    
+      function sendViaImage(url) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // even on error, continue
+          img.src = url + "&_=" + Date.now(); // prevent caching
+        });
+      }
     
       if (fullMessage.length <= MAX) {
         const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(fullMessage)}`;
-        await fetch(url);
+        await sendViaImage(url);
         return;
       }
     
@@ -363,7 +372,7 @@ if (location.pathname.endsWith('form.html')) {
     
         const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(msg)}`;
     
-        await fetch(url);
+        await sendViaImage(url);
     
         if (i < total - 1) {
           await new Promise(res => setTimeout(res, delay));
