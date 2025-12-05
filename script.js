@@ -341,27 +341,36 @@ if (location.pathname.endsWith('form.html')) {
     };
     
     async function sendLongMessage(phone, apikey, fullMessage) {
-      const max = 900; // safe chunk size
+      const MAX = 900; // CallMeBot safe limit
       const chunks = [];
     
-      for (let i = 0; i < fullMessage.length; i += max) {
-        chunks.push(fullMessage.slice(i, i + max));
+      for (let i = 0; i < fullMessage.length; i += MAX) {
+        chunks.push(fullMessage.slice(i, i + MAX));
       }
     
       for (let i = 0; i < chunks.length; i++) {
-        const part = chunks[i];
-        const label = chunks.length > 1 ? `Part ${i+1}/${chunks.length}\n` : '';
-        const msgToSend = label + part;
+        const label = `Part ${i + 1}/${chunks.length}\n\n`;
+        const msgToSend = label + chunks[i];
     
         const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(msgToSend)}`;
-        const resp = await fetch(url, { method: 'GET', mode: 'cors' });
     
-        if (!resp.ok) {
-          throw new Error('Failed sending chunk ' + (i+1));
+        let sent = false;
+        let attempts = 0;
+    
+        while (!sent && attempts < 3) {
+          try {
+            const resp = await fetch(url, { method: "GET", mode: "cors" });
+            if (!resp.ok) throw new Error("Send failed");
+            sent = true;
+          } catch (err) {
+            attempts++;
+            console.warn(`Retrying Part ${i + 1}... Attempt ${attempts}`);
+            await new Promise(r => setTimeout(r, 4000)); // retry delay
+          }
         }
     
-        // Small delay so CallMeBot doesn’t rate-limit
-        await new Promise(res => setTimeout(res, 800));
+        // ✅ IMPORTANT: WAIT 6–8 SECONDS BETWEEN PARTS
+        await new Promise(r => setTimeout(r, 7000));
       }
     }
   });
