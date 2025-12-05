@@ -342,17 +342,15 @@ if (location.pathname.endsWith('form.html')) {
     
     async function sendLongMessage(phone, apikey, fullMessage) {
     
-      const MAX = 700; // Safe WhatsApp + CallMeBot limit
-      const delay = 3000; // Small safe delay between parts (1.2s)
+      const MAX = 400;      // ✅ SAFE size
+      const delay = 10000; // ✅ 10 seconds delay (VERY IMPORTANT)
     
-      // ✅ If message fits, send once only
       if (fullMessage.length <= MAX) {
         const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(fullMessage)}`;
-        await fetch(url, { method: "GET", mode: "cors" });
+        await fetch(url);
         return;
       }
     
-      // ✅ Otherwise, split into as many parts as needed
       const chunks = [];
       for (let i = 0; i < fullMessage.length; i += MAX) {
         chunks.push(fullMessage.slice(i, i + MAX));
@@ -360,15 +358,13 @@ if (location.pathname.endsWith('form.html')) {
     
       const total = chunks.length;
     
-      // ✅ Send parts sequentially (NO retry loops, NO aborts)
       for (let i = 0; i < total; i++) {
         const msg = `Part ${i + 1}/${total}\n${chunks[i]}`;
     
         const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(msg)}`;
     
-        await fetch(url, { method: "GET", mode: "cors" });
+        await fetch(url);
     
-        // ✅ Small spacing so CallMeBot doesn't drop messages
         if (i < total - 1) {
           await new Promise(res => setTimeout(res, delay));
         }
