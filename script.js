@@ -342,8 +342,8 @@ if (location.pathname.endsWith('form.html')) {
     
     async function sendLongMessage(phone, apikey, fullMessage) {
     
-      const MAX = 1000; // Safe WhatsApp + CallMeBot limit
-      const delay = 2000; // Small safe delay between parts (1.2s)
+      const MAX = 700; // Safe WhatsApp + CallMeBot limit
+      const delay = 3000; // Small safe delay between parts (1.2s)
     
       // ✅ If message fits, send once only
       if (fullMessage.length <= MAX) {
