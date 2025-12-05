@@ -341,36 +341,51 @@ if (location.pathname.endsWith('form.html')) {
     };
     
     async function sendLongMessage(phone, apikey, fullMessage) {
-      const MAX = 900; // CallMeBot safe limit
+    
+      const MAX = 650; // WhatsApp ultra-safe limit
       const chunks = [];
+      const delay = 8000; // 8 seconds HARD DELAY
     
       for (let i = 0; i < fullMessage.length; i += MAX) {
         chunks.push(fullMessage.slice(i, i + MAX));
       }
     
       for (let i = 0; i < chunks.length; i++) {
-        const label = `Part ${i + 1}/${chunks.length}\n\n`;
-        const msgToSend = label + chunks[i];
     
-        const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&apikey=${encodeURIComponent(apikey)}&text=${encodeURIComponent(msgToSend)}`;
+        const msg = `Part ${i + 1}/${chunks.length}\n\n${chunks[i]}`;
+        const url = `https://api.callmebot.com/whatsapp.php`;
+    
+        const params = new URLSearchParams({
+          phone: phone,
+          apikey: apikey,
+          text: msg
+        });
     
         let sent = false;
-        let attempts = 0;
     
-        while (!sent && attempts < 3) {
+        while (!sent) {
           try {
-            const resp = await fetch(url, { method: "GET", mode: "cors" });
-            if (!resp.ok) throw new Error("Send failed");
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 20000);
+    
+            const res = await fetch(url + "?" + params.toString(), {
+              method: "GET",
+              mode: "cors",
+              signal: controller.signal
+            });
+    
+            clearTimeout(timeout);
+    
+            if (!res.ok) throw new Error("HTTP FAIL");
             sent = true;
+    
           } catch (err) {
-            attempts++;
-            console.warn(`Retrying Part ${i + 1}... Attempt ${attempts}`);
-            await new Promise(r => setTimeout(r, 4000)); // retry delay
+            console.warn("Retrying Part", i + 1);
+            await new Promise(r => setTimeout(r, 10000)); // retry after 10s
           }
         }
     
-        // ✅ IMPORTANT: WAIT 6–8 SECONDS BETWEEN PARTS
-        await new Promise(r => setTimeout(r, 7000));
+        await new Promise(r => setTimeout(r, delay)); // ✅ GUARANTEED spacing
       }
     }
   });
