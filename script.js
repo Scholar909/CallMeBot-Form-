@@ -342,8 +342,8 @@ if (location.pathname.endsWith('form.html')) {
     
     async function sendLongMessage(phone, apikey, fullMessage) {
     
-      const MAX = 400;       // Safe chunk size
-      const delay = 10000;  // 10 seconds delay
+      const MAX = 350;       // Safe chunk size
+      const delay = 12000;  // 12 seconds delay
     
       // ✅ Unique group ID per submission
       const msgGroupId = Math.random().toString(36).substring(2, 8).toUpperCase();
